@@ -1,6 +1,6 @@
+extern crate rand;
+
 use std::collections::HashSet;
-use std::ops::Index;
-use std::ops::IndexMut;
 use std::iter;
 use std::fmt;
 use std::io::Write;
@@ -9,6 +9,12 @@ use std::io::Write;
 struct Coordinates {
     row: isize,
     col: isize,
+}
+
+impl Coordinates {
+    fn new(row: isize, col: isize) -> Coordinates {
+        Coordinates{row, col}
+    }
 }
 
 #[derive(Debug)]
@@ -38,11 +44,6 @@ impl Cell {
             Some(coordinates) => self.links.contains(coordinates),
             None => false
         }
-    }
-
-    fn link(&mut self, cell: &mut Cell) {
-        self.links.insert(cell.coordinates.clone());
-        cell.links.insert(self.coordinates.clone());
     }
 
     fn unlink(&mut self, cell: &mut Cell) {
@@ -79,19 +80,33 @@ impl Grid {
         }
         Grid {grid,  rows, cols}
     }
-}
 
-impl Index<(isize, isize)> for Grid {
-    type Output = Cell;
+    //fn link(&mut self, cell1: Coordinates, cell2: Coordinates) {
+        //let cell1 = self.get_index(cell1);
+        //let cell2 = self.get_index(cell2);
+        //self.grid[cell1].insert(
+        //self.links.insert(cell.coordinates.clone());
+        //cell.links.insert(self.coordinates.clone());
+    //}
 
-    fn index(&self, idx: (isize, isize)) -> &Cell {
-        &self.grid[(idx.0 * self.cols + idx.1) as usize]
+    fn get_index(&self, pos: Coordinates) -> Option<usize> {
+        if pos.row >= 0 && pos.row < self.rows && pos.col >=0 && pos.col < self.cols {
+            Some((pos.row * self.cols + pos.col) as usize)
+        } else {
+            None
+        }
     }
-}
 
-impl IndexMut<(isize, isize)> for Grid {
-    fn index_mut(&mut self, idx: (isize, isize)) -> &mut Cell {
-        &mut self.grid[(idx.0 * self.cols + idx.1) as usize]
+    fn get(&self, pos: Coordinates) -> Option<&Cell> {
+        self.get_index(pos).map(|i| &self.grid[i])
+    }
+
+    fn get_mut(&mut self, pos: Coordinates) -> Option<&mut Cell> {
+        if pos.row >= 0 && pos.row < self.rows && pos.col >=0 && pos.col < self.cols {
+            Some(&mut self.grid[(pos.row * self.cols + pos.col) as usize])
+        } else {
+            None
+        }
     }
 }
 
@@ -108,7 +123,7 @@ impl fmt::Display for Grid {
             let mut line1 = "|".to_string();
             let mut line2 = "+".to_string();
             for col in 0..self.cols {
-                let cell = &self[(row,col)];
+                let cell = self.get(Coordinates::new(row,col)).unwrap();
                 if cell.is_linked(&cell.east) {
                     line1.push_str("    ");
                 } else {
@@ -129,8 +144,34 @@ impl fmt::Display for Grid {
     }
 }
 
+//fn binary_tree(grid: &mut Grid) {
+    //for cell in grid.grid.iter_mut() {
+        //if cell.north.is_none() && cell.east.is_none() { continue; }
+
+        //if cell.north.is_none() {
+            //let east = cell.east.unwrap();
+            //cell.link(grid.get_mut((east.row, east.col)).unwrap());
+            //continue;
+        //}
+
+        //if cell.east.is_none() {
+            //let north = cell.north.unwrap();
+            //cell.link(grid.get_mut((north.row, north.col)).unwrap());
+            //continue;
+        //}
+
+        //if rand::random() {
+            //let north = cell.north.unwrap();
+            //cell.link(grid.get_mut((north.row, north.col)).unwrap());
+        //} else {
+            //let east = cell.east.unwrap();
+            //cell.link(grid.get_mut((east.row, east.col)).unwrap());
+        //}
+    //}
+//}
+
 fn main() {
     let mut grid = Grid::new(10,10);
-    println!("{:?}", grid[(1,2)]);
+    println!("{:?}", grid.get(Coordinates::new(1,2)));
     println!("{}", grid);
 }
