@@ -14,7 +14,6 @@ fn sidewinder(grid: &mut Grid) {
             let cell_pos = Coordinates::new(row, col);
             if go_east {
                 let east_pos = grid.get(&cell_pos).map(|x|x.east.clone().unwrap()).unwrap();
-                println!("going east from {:?} linking to {:?}", cell_pos, east_pos);
                 grid.link(cell_pos, east_pos);
                 continue;
             }
@@ -26,8 +25,6 @@ fn sidewinder(grid: &mut Grid) {
             let south_col = run_start.unwrap() + (rand::random::<usize>() % run_length) as isize;
             let from_pos = Coordinates::new(row, south_col);
 
-                //println!("going south from {:?}", grid.get(&from_pos));
-            println!("Going south from {:?} : Run Length {:?} {:?} {:?}", from_pos, run_length, run_start, col);
             let to_pos = grid.get(&from_pos).map(|x|x.south.clone().unwrap()).unwrap();
             grid.link(from_pos, to_pos);
             run_start = None;
@@ -36,7 +33,7 @@ fn sidewinder(grid: &mut Grid) {
 }
 
 fn main() {
-    let mut grid = Grid::new(10,10);
+    let mut grid = Grid::new(15,15);
     sidewinder(&mut grid);
     println!("{}", grid);
 }
